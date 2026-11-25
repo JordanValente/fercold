@@ -1,11 +1,11 @@
 {
   "name": "fercold-site",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Novo site Fercold — estático, rápido e optimizado para SEO",
+  "description": "Site Fercold — HTML/CSS/JS statique, optimisé SEO",
   "scripts": {
-    "build": "node build.mjs",
-    "dev": "node build.mjs && npx --yes serve dist -l 4321"
+    "build": "node tools/build.mjs",
+    "dev": "npx --yes serve . -l 4321"
   }
 }

@@ -1,18 +1,25 @@
-// Gerador estático Fercold — sem dependências. `node build.mjs` → dist/
-import { mkdirSync, writeFileSync, cpSync, rmSync, readFileSync } from 'node:fs';
+// Gerador Fercold — sem dependências.
+// Gera as páginas HTML na raiz do projecto a partir de tools/data.mjs.
+// Uso: `npm run build` (ou `node tools/build.mjs`)
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { SITE, CATEGORIES, BRANDS, FAQ } from './src/data.mjs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { SITE, CATEGORIES, BRANDS, FAQ } from './data.mjs';
 
-const OUT = 'dist';
-rmSync(OUT, { recursive: true, force: true });
-mkdirSync(OUT, { recursive: true });
-cpSync('public', OUT, { recursive: true });
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const OUT = (f) => join(ROOT, f);
 
-const css = readFileSync('public/assets/styles.css');
-const v = createHash('md5').update(css).update(readFileSync('public/assets/app.js')).digest('hex').slice(0, 8);
+const v = createHash('md5')
+  .update(readFileSync(OUT('assets/css/style.css')))
+  .update(readFileSync(OUT('assets/js/main.js')))
+  .digest('hex').slice(0, 8);
+
+// Caminhos relativos: o site funciona em qualquer servidor ou subpasta.
+let PRE = '';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const u = (p) => `${SITE.base}${p}`;
+const u = (p) => (PRE + p.replace(/^\//, '')) || './';
 const abs = (p) => `${SITE.url}${p}`;
 const shopUrl = (c) => `${SITE.shop}/${c.shop}`;
 const year = new Date().getFullYear();
@@ -24,8 +31,8 @@ const business = {
   name: SITE.name,
   legalName: SITE.legalName,
   url: SITE.url + '/',
-  logo: abs('/assets/logo.svg'),
-  image: abs('/assets/og.png'),
+  logo: abs('/assets/img/logo.svg'),
+  image: abs('/assets/img/og.png'),
   email: SITE.email,
   telephone: SITE.phone,
   priceRange: '€€',
@@ -150,7 +157,7 @@ function page({ path, title, desc, body, active, ld = [], ogType = 'website' }) 
     ...ld,
   ] };
   return `<!doctype html>
-<html lang="pt-PT">
+<html lang="pt-PT" data-root="${PRE || './'}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -166,15 +173,15 @@ function page({ path, title, desc, body, active, ld = [], ogType = 'website' }) 
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${abs(path)}">
-<meta property="og:image" content="${abs('/assets/og.png')}">
+<meta property="og:image" content="${abs('/assets/img/og.png')}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="geo.region" content="PT-11"><meta name="geo.placename" content="Camarate">
-<link rel="icon" href="${u('/assets/favicon.svg')}" type="image/svg+xml">
-<link rel="apple-touch-icon" href="${u('/assets/apple-touch-icon.png')}">
+<link rel="icon" href="${u('/assets/img/favicon.svg')}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${u('/assets/img/apple-touch-icon.png')}">
 <link rel="manifest" href="${u('/site.webmanifest')}">
 <link rel="preload" href="${u('/assets/fonts/archivo-var.woff2')}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="${u('/assets/styles.css')}?v=${v}">
+<link rel="stylesheet" href="${u('/assets/css/style.css')}?v=${v}">
 <script type="application/ld+json">${JSON.stringify(graph)}</script>
 </head>
 <body>
@@ -183,7 +190,7 @@ ${header(active)}
 ${body}
 </main>
 ${footer()}
-<script src="${u('/assets/app.js')}?v=${v}" defer></script>
+<script src="${u('/assets/js/main.js')}?v=${v}" defer></script>
 </body>
 </html>`;
 }
@@ -327,7 +334,7 @@ pages.push({
   title: 'Fercold | Refrigeração, ar condicionado e AVAC em Lisboa',
   desc: 'Refrigeração, climatização, ventilação, ferramenta e material AVAC em Camarate, Lisboa. Daikin, Gree, Copeland e +40 marcas. Entrega 24 h no continente.',
   ld: [faqLd(FAQ)],
-  body: `
+  body: () => `
 <section class="hero">
   <div class="wrap hero__in">
     <div class="hero__txt">
@@ -412,7 +419,7 @@ for (const c of CATEGORIES) {
     <h3>${esc(n)}</h3>
     ${subs.length ? `<ul>${subs.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
   </li>`).join('');
-  const others = CATEGORIES.filter((o) => o.slug !== c.slug).map((o) => `<li><a href="${u(`/${o.slug}/`)}">${o.name}</a></li>`).join('');
+  const others = () => CATEGORIES.filter((o) => o.slug !== c.slug).map((o) => `<li><a href="${u(`/${o.slug}/`)}">${o.name}</a></li>`).join('');
   pages.push({
     path: `/${c.slug}/`,
     file: `${c.slug}/index.html`,
@@ -424,7 +431,7 @@ for (const c of CATEGORIES) {
       { '@type': 'CollectionPage', name: c.title, url: abs(`/${c.slug}/`), mainEntity: { '@type': 'ItemList', itemListElement: c.tree.map(([n], i) => ({ '@type': 'ListItem', position: i + 1, name: n })) } },
       ...(c.faq.length ? [faqLd(c.faq)] : []),
     ],
-    body: `
+    body: () => `
 <section class="chero">
   <div class="wrap">
     <nav class="crumbs" aria-label="Localização"><ol><li><a href="${u('/')}">Início</a></li><li aria-current="page">${c.name}</li></ol></nav>
@@ -458,7 +465,7 @@ for (const c of CATEGORIES) {
 </section>
 ${faqBlock(c.faq, `Perguntas sobre ${c.name.toLowerCase()}`)}
 <section class="sec more" aria-labelledby="more-h">
-  <div class="wrap"><h2 id="more-h" class="h2">Outras áreas</h2><ul class="more__list">${others}</ul></div>
+  <div class="wrap"><h2 id="more-h" class="h2">Outras áreas</h2><ul class="more__list">${others()}</ul></div>
 </section>
 ${visitBlock()}
 `,
@@ -473,7 +480,7 @@ pages.push({
   title: 'Sobre a Fercold | Refrigeração e AVAC em Camarate',
   desc: 'Distribuidor de refrigeração, climatização, ventilação e fotovoltaico em Camarate, com aconselhamento técnico e entrega em 24 h no continente.',
   ld: [crumbsLd([['Início', '/'], ['Sobre nós', '/sobre-nos/']])],
-  body: `
+  body: () => `
 <section class="chero">
   <div class="wrap">
     <nav class="crumbs" aria-label="Localização"><ol><li><a href="${u('/')}">Início</a></li><li aria-current="page">Sobre nós</li></ol></nav>
@@ -506,7 +513,7 @@ pages.push({
   title: 'Contactos Fercold — Camarate, telefone e email',
   desc: `Fale com a Fercold: ${SITE.phone}, ${SITE.mobile} ou ${SITE.email}. Loja na Rua do Bom Pastor, Lote 8, Camarate. Aberto ao sábado até às 12:30.`,
   ld: [crumbsLd([['Início', '/'], ['Contactos', '/contactos/']]), { '@type': 'ContactPage', url: abs('/contactos/'), name: 'Contactos Fercold' }],
-  body: `
+  body: () => `
 <section class="chero">
   <div class="wrap">
     <nav class="crumbs" aria-label="Localização"><ol><li><a href="${u('/')}">Início</a></li><li aria-current="page">Contactos</li></ol></nav>
@@ -545,7 +552,7 @@ pages.push({
   title: 'Pesquisar no catálogo — Fercold',
   desc: 'Pesquise famílias de produto no catálogo Fercold.',
   noindex: true,
-  body: `
+  body: () => `
 <section class="chero"><div class="wrap">
   <h1 class="chero__h">Pesquisa</h1>
   <form class="finder finder--page" role="search" data-finder data-finder-page>
@@ -564,17 +571,19 @@ pages.push({
   path: '/404.html', file: '404.html', noindex: true,
   title: 'Página não encontrada — Fercold',
   desc: 'Esta página não existe.',
-  body: `<section class="chero"><div class="wrap"><h1 class="chero__h">Esta página não existe</h1><p class="chero__lead">O endereço pode ter mudado. Volte ao início ou escolha uma área do catálogo.</p><div class="actions"><a class="btn btn--copper" href="${u('/')}">Voltar ao início</a></div></div></section>
+  body: () => `<section class="chero"><div class="wrap"><h1 class="chero__h">Esta página não existe</h1><p class="chero__lead">O endereço pode ter mudado. Volte ao início ou escolha uma área do catálogo.</p><div class="actions"><a class="btn btn--copper" href="${u('/')}">Voltar ao início</a></div></div></section>
 <section class="sec"><div class="wrap"><ul class="more__list">${CATEGORIES.map((o) => `<li><a href="${u(`/${o.slug}/`)}">${o.name}</a></li>`).join('')}</ul></div></section>`,
 });
 
 for (const p of pages) {
-  let html = page(p);
+  const depth = p.file.split('/').length - 1;
+  PRE = '../'.repeat(depth);
+  let html = page({ ...p, body: p.body() });
   if (p.noindex) html = html.replace('index, follow, max-image-preview:large', 'noindex, follow');
-  const f = `${OUT}/${p.file}`;
-  mkdirSync(f.split('/').slice(0, -1).join('/'), { recursive: true });
-  writeFileSync(f, html);
+  mkdirSync(dirname(OUT(p.file)), { recursive: true });
+  writeFileSync(OUT(p.file), html);
 }
+PRE = '';
 
 // índice de pesquisa
 const idx = [];
@@ -590,15 +599,15 @@ for (const b of BRANDS) {
   const c = CATEGORIES.find((c) => c.brands.includes(b));
   if (c) idx.push({ t: b, d: `Marca em ${c.name}`, u: u(`/${c.slug}/`) });
 }
-writeFileSync(`${OUT}/assets/search.json`, JSON.stringify(idx));
+writeFileSync(OUT('assets/data/search.json'), JSON.stringify(idx));
 
 // sitemap + robots
 const today = new Date().toISOString().slice(0, 10);
-writeFileSync(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>
+writeFileSync(OUT('sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.filter((p) => !p.noindex).map((p) => `  <url><loc>${abs(p.path)}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${p.path === '/' ? '1.0' : '0.8'}</priority></url>`).join('\n')}
 </urlset>
 `);
-writeFileSync(`${OUT}/robots.txt`, `User-agent: *\nAllow: /\nDisallow: /pesquisa/\n\nSitemap: ${abs('/sitemap.xml')}\n`);
-writeFileSync(`${OUT}/.nojekyll`, '');
-console.log(`✓ ${pages.length} páginas geradas em ${OUT}/`);
+writeFileSync(OUT('robots.txt'), `User-agent: *\nAllow: /\nDisallow: /pesquisa/\n\nSitemap: ${abs('/sitemap.xml')}\n`);
+writeFileSync(OUT('.nojekyll'), '');
+console.log(`✓ ${pages.length} páginas geradas`);

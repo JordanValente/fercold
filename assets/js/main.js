@@ -24,9 +24,9 @@
   addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
   /* pesquisa no catálogo */
-  const base = (document.querySelector('link[rel=manifest]')?.getAttribute('href') || '/site.webmanifest').replace('/site.webmanifest', '');
+  const root = document.documentElement.dataset.root || './';
   let index;
-  const load = () => (index ||= fetch(base + '/assets/search.json').then((r) => r.json()));
+  const load = () => (index ||= fetch(root + 'assets/data/search.json').then((r) => r.json()));
   const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const find = async (q) => {
     const terms = norm(q).split(/\s+/).filter(Boolean);
@@ -55,7 +55,7 @@
     const list = $('.finder__res', form);
     let sel = -1, items = [];
     const render = () => {
-      list.innerHTML = items.map((it, i) => `<li><a role="option" id="fr-${i}" href="${it.u}" aria-selected="${i === sel}">${esc(it.t)}<small>${esc(it.d)}</small></a></li>`).join('');
+      list.innerHTML = items.map((it, i) => `<li><a role="option" id="fr-${i}" href="${root + it.u}" aria-selected="${i === sel}">${esc(it.t)}<small>${esc(it.d)}</small></a></li>`).join('');
       list.hidden = !items.length;
       input.setAttribute('aria-expanded', String(!!items.length));
     };
@@ -65,7 +65,7 @@
       if (!items.length) return;
       if (e.key === 'ArrowDown') { sel = (sel + 1) % items.length; render(); e.preventDefault(); }
       if (e.key === 'ArrowUp') { sel = (sel - 1 + items.length) % items.length; render(); e.preventDefault(); }
-      if (e.key === 'Enter' && sel > -1) { location.href = items[sel].u; e.preventDefault(); }
+      if (e.key === 'Enter' && sel > -1) { location.href = root + items[sel].u; e.preventDefault(); }
     });
     document.addEventListener('click', (e) => { if (!form.contains(e.target)) { items = []; render(); } });
   });
@@ -77,7 +77,7 @@
     input.value = q;
     const run = async (v) => {
       const r = await find(v);
-      resList.innerHTML = r.map((it) => `<li><a href="${it.u}"><strong>${esc(it.t)}</strong><span>${esc(it.d)}</span></a></li>`).join('');
+      resList.innerHTML = r.map((it) => `<li><a href="${root + it.u}"><strong>${esc(it.t)}</strong><span>${esc(it.d)}</span></a></li>`).join('');
       $('[data-results-empty]').hidden = !!r.length || !v;
     };
     run(q);

@@ -1,7 +1,6 @@
 // Fercold — dados do site. Editar aqui e correr `npm run build`.
 export const SITE = {
   url: process.env.SITE_URL || 'https://www.fercold.pt',
-  base: process.env.BASE_PATH || '',
   name: 'Fercold',
   legalName: 'Fercold - Comércio de Equipamentos de Refrigeração, Unipessoal, Lda.',
   shop: 'https://www.fercold.pt/loja-online',

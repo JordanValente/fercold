@@ -17,31 +17,51 @@ Refonte complète de [fercold.pt](https://www.fercold.pt) : site vitrine statiqu
 
 Système « cuivre & glace » : le cuivre des tuyauteries, le bleu glacé du côté froid du circuit. Pièce maîtresse : le **cycle frigorifique animé** du hero (compresseur → condenseur → détendeur → évaporateur), qui se dessine au chargement puis givre. Typo unique : Archivo variable (axe de largeur poussé à 125 % pour les titres). Animations désactivées si `prefers-reduced-motion`.
 
-## Pages
+## Architecture
 
-- `/` accueil (recherche instantanée dans le catalogue, univers, étapes, marques, espace pro, FAQ, venir au comptoir)
-- `/climatizacao/`, `/refrigeracao/`, `/ferramenta/`, `/instalacao-avac/`, `/ventilacao/`, `/material-electrico/`, `/equipamentos-hoteleiros/`, `/fotovoltaicos/`
-- `/sobre-nos/`, `/contactos/`, `/pesquisa/`, `404.html`
+```
+fercold/
+├── index.html                    Accueil
+├── climatizacao/index.html       Pages univers (1 dossier = 1 URL propre)
+├── refrigeracao/index.html
+├── ferramenta/index.html
+├── instalacao-avac/index.html
+├── ventilacao/index.html
+├── material-electrico/index.html
+├── equipamentos-hoteleiros/index.html
+├── fotovoltaicos/index.html
+├── sobre-nos/index.html          À propos
+├── contactos/index.html          Contact + formulaire de demande de devis
+├── pesquisa/index.html           Résultats de recherche (noindex)
+├── 404.html
+├── assets/
+│   ├── css/style.css             Tout le design (variables, composants, responsive)
+│   ├── js/main.js                Menu mobile, recherche instantanée, formulaire
+│   ├── fonts/archivo-var.woff2   Police auto-hébergée
+│   ├── img/                      Logo, favicon, image de partage (og.png)
+│   └── data/search.json          Index de recherche du catalogue
+├── sitemap.xml · robots.txt · site.webmanifest
+└── tools/
+    ├── data.mjs                  CONTENU : catégories, familles, marques, FAQ, coordonnées
+    └── build.mjs                 Génère les pages HTML ci-dessus à partir de data.mjs
+```
+
+Le site est du **HTML/CSS/JS pur** : il se dépose tel quel sur n'importe quel hébergement (O2switch, FTP, GitHub Pages, Netlify…). Tous les liens sont relatifs, il marche aussi dans un sous-dossier.
 
 Les boutons « Comprar » renvoient vers la boutique actuelle (`/loja-online/...`) et l'espace B2B existant : le site se branche devant le e-commerce sans le casser.
 
-## Utilisation
+## Modifier le site
 
-```bash
-npm run build      # génère dist/
-npm run dev        # build + serveur local sur http://localhost:4321
-```
-
-Tout le contenu (catégories, familles, marques, FAQ, coordonnées) est dans `src/data.mjs`.
-
-Variables : `SITE_URL` (défaut `https://www.fercold.pt`) et `BASE_PATH` (sous-dossier, ex. `/fercold` pour GitHub Pages).
+- **Texte, catégories, marques, FAQ, téléphone…** → éditer `tools/data.mjs`, puis `npm run build` (régénère tous les `index.html`, le sitemap et l'index de recherche).
+- **Design** → `assets/css/style.css` (pas besoin de rebuild).
+- **Aperçu local** → `npm run dev` puis http://localhost:4321
 
 ## Déploiement
 
-Le workflow `.github/workflows/pages.yml` publie automatiquement sur GitHub Pages à chaque push sur `main` (activer : *Settings → Pages → Source : GitHub Actions*).
+Le workflow `.github/workflows/pages.yml` publie la racine du dépôt sur GitHub Pages à chaque push sur `main` (activer : *Settings → Pages → Source : GitHub Actions*). Pour la mise en production sur fercold.pt, copier tout sauf `tools/`, `.github/` et `package.json` à la racine du domaine.
 
 ## À compléter avec Fercold
 
-- Horaires de semaine (seul « samedi jusqu'à 12h30 » est public) → ajouter `openingHoursSpecification` dans `build.mjs`
+- Horaires de semaine (seul « samedi jusqu'à 12h30 » est public) → ajouter `openingHoursSpecification` dans `tools/build.mjs`
 - Année de création, photos réelles du comptoir / de l'équipe (fort impact sur le SEO local)
 - Coordonnées GPS exactes et lien Google Business Profile
