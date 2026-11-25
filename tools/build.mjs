@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { SITE, CATEGORIES, BRANDS, FAQ } from './data.mjs';
+import { SITE, CATEGORIES, BRANDS, FAQ, FEATURED, BRAND_LOGOS, GREE_BANNER } from './data.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = (f) => join(ROOT, f);
@@ -324,6 +324,47 @@ function visitBlock() {
 </section>`;
 }
 
+function featuredBlock() {
+  const card = (p) => `<li class="prod">
+  <a class="prod__link" href="${p.url}" rel="noopener">
+    <span class="prod__img${p.img2 ? ' prod__img--swap' : ''}">
+      <img src="${p.img}" alt="${esc((p.brand ? p.brand + ' ' : '') + p.name)}" width="400" height="400" loading="lazy" decoding="async">
+      ${p.img2 ? `<img src="${p.img2}" alt="" width="400" height="400" loading="lazy" decoding="async" aria-hidden="true">` : ''}
+    </span>
+    <span class="prod__meta">Ref. ${esc(p.ref)}${p.brand ? `<b>${esc(p.brand)}</b>` : ''}</span>
+    <span class="prod__name">${esc(p.name)}</span>
+    <span class="prod__go">Ver na loja ${icon.arrow}</span>
+  </a>
+</li>`;
+  return `<section class="sec feat" aria-labelledby="feat-h">
+  <div class="wrap">
+    <div class="sec__head">
+      <h2 id="feat-h" class="h2">Produtos em destaque</h2>
+      <p>Uma selecção do que sai todas as semanas do nosso balcão. Preços na loja online e na área profissional.</p>
+    </div>
+    <ul class="feat__grid">${FEATURED.map(card).join('')}</ul>
+    <div class="actions"><a class="btn btn--ghost" href="${SITE.url}/produtos" rel="noopener">Ver todos os produtos</a></div>
+  </div>
+</section>`;
+}
+
+function greeBlock() {
+  return `<section class="gree" aria-label="Gree em destaque">
+  <div class="wrap">
+    <a class="gree__link" href="${u('/climatizacao/')}">
+      <img src="${GREE_BANNER.img}" alt="Ar condicionado e bombas de calor Gree disponíveis na Fercold" width="${GREE_BANNER.w}" height="${GREE_BANNER.h}" loading="lazy" decoding="async">
+    </a>
+  </div>
+</section>`;
+}
+
+function logosBlock() {
+  return `<ul class="logos" aria-label="Marcas em destaque">${BRAND_LOGOS.map((b) => `<li class="logos__item">
+    <img src="${b.img}" alt="${esc(b.name)}" width="${b.w}" height="${b.h}" loading="lazy" decoding="async">
+    <span>${esc(b.note)}</span>
+  </li>`).join('')}</ul>`;
+}
+
 /* ---------- páginas ---------- */
 const pages = [];
 
@@ -333,7 +374,7 @@ pages.push({
   file: 'index.html',
   title: 'Fercold | Refrigeração, ar condicionado e AVAC em Lisboa',
   desc: 'Refrigeração, climatização, ventilação, ferramenta e material AVAC em Camarate, Lisboa. Daikin, Gree, Copeland e +40 marcas. Entrega 24 h no continente.',
-  ld: [faqLd(FAQ)],
+  ld: [faqLd(FAQ), { '@type': 'ItemList', name: 'Produtos em destaque', itemListElement: FEATURED.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@type': 'Product', name: (p.brand ? p.brand + ' ' : '') + p.name, sku: p.ref, image: p.img, url: p.url, ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}) } })) }],
   body: () => `
 <section class="hero">
   <div class="wrap hero__in">
@@ -377,6 +418,9 @@ pages.push({
   </div>
 </section>
 
+${featuredBlock()}
+${greeBlock()}
+
 <section class="sec how" aria-labelledby="how-h">
   <div class="wrap">
     <h2 id="how-h" class="h2">Da referência à obra</h2>
@@ -391,6 +435,7 @@ pages.push({
 <section class="sec brands" aria-labelledby="brands-h">
   <div class="wrap">
     <h2 id="brands-h" class="h2">Marcas com que trabalhamos</h2>
+    ${logosBlock()}
     <ul class="brands__list">${BRANDS.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
   </div>
 </section>
@@ -595,6 +640,7 @@ for (const c of CATEGORIES) {
   }
   for (const e of c.examples) idx.push({ t: e, d: c.name, u: u(`/${c.slug}/`) });
 }
+for (const p of FEATURED) idx.push({ t: (p.brand ? p.brand + ' ' : '') + p.name, d: `Ref. ${p.ref}`, u: p.url });
 for (const b of BRANDS) {
   const c = CATEGORIES.find((c) => c.brands.includes(b));
   if (c) idx.push({ t: b, d: `Marca em ${c.name}`, u: u(`/${c.slug}/`) });

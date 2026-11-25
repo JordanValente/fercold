@@ -197,3 +197,27 @@ export const FAQ = [
   ['Não encontro o produto que procuro. O que faço?', 'Ligue, envie email ou mande a referência. Se não estiver no catálogo online, procuramos o produto ou um equivalente junto dos nossos fornecedores.'],
   ['Que formas de pagamento aceitam?', 'Aceitamos vários métodos de pagamento seguro na loja online e no balcão. Confirme as opções disponíveis no momento da encomenda.'],
 ];
+
+// Repris de la page d'accueil actuelle de fercold.pt (produits en vedette + marques affichées).
+// Les images sont servies par le CDN actuel du site (bo8.onlinebiz.pt).
+const CDN = 'https://bo8.onlinebiz.pt/fercold-comercio-de-equipamentos-de-refrigera--o-unipessoal--lda/_files/fercold-comercio-de-equipamentos-de-refrigera-o-unipessoal-lda-';
+const P = 'https://www.fercold.pt/loja-online/';
+
+export const FEATURED = [
+  { ref: 'FI013', brand: '', cat: 'instalacao-avac', name: 'Fita Tela Branca 50 mm × 50 m', img: CDN + '9dca9d8afa-AXRFQ20200808123043.jpg', url: P + 'instalacao-avac/fitas-adesivas-e-pvc/fita-tela-branca-50mm-x-50mt-40975' },
+  { ref: 'PL006', brand: 'Errecom', cat: 'instalacao-avac', name: 'Detergente Concentrado Acid Ultra 250 ml', img: CDN + 'errecom-acid-ultra-250ml-XHIQZ20220208111019.png', img2: CDN + 'acidultra-erreecom-2-OAWI020220208111037.png', url: P + 'instalacao-avac/limpeza-e-desinfecao/detergente/errecom-detergente-concentrado-acid-ultra-emb-250ml-43488' },
+  { ref: 'PL007', brand: 'Errecom', cat: 'instalacao-avac', name: 'Detergente Concentrado Alkaline Ultra 250 ml', img: CDN + 'errecom-alkaline-ultra-250ml-655x655-BYOAQ20220208113408.png', img2: CDN + 'alkaline-ultra-erreecom-2-655x655-HKZBA20220208113418.png', url: P + 'instalacao-avac/limpeza-e-desinfecao/detergente/errecom-detergente-concentrado-alkaline-ultra-emb-250ml-43489' },
+  { ref: 'PL008', brand: 'Errecom', cat: 'instalacao-avac', name: 'Detergente para Evaporadores Evo Ultra 250 ml', img: CDN + 'errecom-evo-ultra-250ml-655x655-G5AZN20220208113620.png', url: P + 'instalacao-avac/limpeza-e-desinfecao/detergente/errecom-detergente-para-evaporadores-concentrado-evo-ultra-emb-250ml-43490' },
+  { ref: 'RF115', brand: 'Elitech', cat: 'refrigeracao', name: 'Termóstato Digital 1 Relé 230 V ECS-961 Neo', img: CDN + 'unnamed-RV4N920200617102935.jpg', url: P + 'refrigeracao/termostatos-e-termometros/termostatos-digitais/elitech-termostato-digital-1-rele-220v-ecs-961-neo-40768' },
+  { ref: '1500002865', brand: '', cat: 'ferramenta', name: 'Abocardador com Expansor CT-275', img: CDN + 'flaring-and-swaging-set-500x500-MB76A20200924140453.jpg', url: P + 'ferramenta/abocardadores/abocardador-expansor-/abocardador-c-expansor-mod-ct-275-40972' },
+  { ref: 'TP072', brand: 'Sauermann', cat: 'instalacao-avac', name: 'Bomba de Condensados SI-27', img: CDN + 'si27-T1RMG20200706150706.jpg', url: P + 'instalacao-avac/bombas-de-condensados/sauermann-bomba-de-condensados-mod-si-27-40903' },
+  { ref: '1000123', brand: '', cat: 'instalacao-avac', name: 'Tubo de Cobre Isolado 3/4" × 0,8 mm (rolo 25 m)', img: CDN + 'download-AWFTJ20200314121557.jpg', url: P + 'instalacao-avac/tubulacao-e-acessorios-/tubo-de-cobre/tubo-de-cobre-isolado/tubo-de-cobre-isolado-3-4x08mm-rolo-25mts-40852' },
+  { ref: 'VP1050.01', brand: 'Errecom', cat: 'instalacao-avac', name: 'Máquina de Limpeza Portátil de Alta Pressão R-Jet Gun', img: CDN + 'jet-gun-erreecom-2-655x655-LPBGH20220208161628.png', url: P + 'instalacao-avac/limpeza-e-desinfecao/estacoes-de-lavagem/errecom-maquina-de-limpeza-portatil-de-alta-pressao-para-sistemas-ac-r-jet-gun-43487' },
+];
+
+export const BRAND_LOGOS = [
+  { name: 'Errecom', img: CDN + 'images-OHMPB20220207161849.png', w: 310, h: 90, note: 'Química para AC e refrigeração' },
+  { name: 'Toyotomi', img: CDN + '10728248-154d-4b5d-902a-65aeaedb2fb5-6GSYO20211228162619.jpg', w: 514, h: 171, note: 'Ar condicionado e desumidificação' },
+];
+
+export const GREE_BANNER = { img: CDN + 'banner-corpo-gree-1920x500-GBPKH20210707142550.gif', w: 1920, h: 500 };

@@ -65,3 +65,4 @@ Le workflow `.github/workflows/pages.yml` publie la racine du dépôt sur GitHub
 - Horaires de semaine (seul « samedi jusqu'à 12h30 » est public) → ajouter `openingHoursSpecification` dans `tools/build.mjs`
 - Année de création, photos réelles du comptoir / de l'équipe (fort impact sur le SEO local)
 - Coordonnées GPS exactes et lien Google Business Profile
+- Les photos des produits en vedette et les logos Errecom / Toyotomi / bannière Gree viennent du CDN actuel (`bo8.onlinebiz.pt`) : les rapatrier dans `assets/img/` lors de la mise en production
